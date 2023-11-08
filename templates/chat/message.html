@@ -9,10 +9,7 @@
     {% endif %}
   </div>
 </div>
-<form id="chat-form"
-  class="flex flex-row p-10" 
-  hx-swap-oob="outerHTML"
-  ws-send>
+<form id="chat-form" hx-swap-oob="innerHTML">
   <div class="flex-1 flex flex-row rounded-lg bg-slate-700"> 
     <input id="chat-input" type="text" name="message" class="bg-slate-900 text-white text-lg flex-1 p-4 outline-none bg-transparent" required autofocus autocomplete="off"></input>
     <button type="submit" class="flex flex-row items-center justify-center p-3 outline-none"><span class="material-symbols-outlined">send</span></button>
