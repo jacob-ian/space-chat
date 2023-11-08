@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Chat{% endblock %}
+
+{% block content %}
+<h1 class="text-white font-bold text-3xl mb-10 text-center">spacechat!</h1>
+<div 
+  hx-ext="ws" 
+  ws-connect="/chat"
+  class="flex-1 bg-slate-900 rounded-lg flex flex-col">
+  <div id="messages" class="flex-1 p-10"></div>
+  <form id="chat-form"
+    class="flex flex-row p-10" 
+    ws-send>
+    <div class="flex-1 flex flex-row rounded-lg bg-slate-700"> 
+      <input id="chat-input" type="text" name="message" class="bg-slate-900 text-white text-lg flex-1 p-4 outline-none bg-transparent" required></input>
+      <button type="submit" class="flex flex-row items-center justify-center p-3 outline-none"><span class="material-symbols-outlined">send</span></button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+

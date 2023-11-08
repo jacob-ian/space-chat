@@ -1,0 +1,11 @@
+{
+  "name": "@space/chat",
+  "scripts": {
+    "tailwind:watch": "tailwindcss -i tailwind.css -o assets/styles.css --watch",
+    "tailwind:build": "tailwindcss -i tailwind.css -o assets/styles.css --minify"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.3",
+    "tailwindcss": "^3.3.5"
+  }
+}
