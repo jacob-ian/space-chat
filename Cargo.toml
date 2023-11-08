@@ -11,6 +11,7 @@ askama_axum = "0.3.0"
 axum = { version = "0.6.20", features = ["ws"] }
 hyper = { version = "0.14.27", features = ["full"] }
 include_dir = "0.7.3"
+reqwest = { version = "0.11.22", features = ["serde_json", "native-tls", "json"] }
 serde = { version = "1.0.192", features = ["derive"] }
 serde_json = "1.0.108"
 tokio = { version = "1.33.0", features = ["full"] }
