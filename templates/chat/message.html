@@ -1,11 +1,11 @@
 <div id="messages" hx-swap-oob="beforeend">
   <div class="flex flex-row first:mt-0 first:mb-2 my-2">
     {% if is_bot %}
-    <div class="bg-slate-700 rounded-full py-3 px-4">{{ message }}</div>
+    <div class="bg-slate-700 rounded-lg max-w-3xl py-3 px-4">{{ message }}</div>
     <div class="flex-1"></div>
     {% else %}
     <div class="flex-1"></div>
-    <div class="bg-slate-500 rounded-full py-3 px-4">{{ message }}</div>
+    <div class="bg-slate-500 rounded-lg max-w-3xl py-3 px-4">{{ message }}</div>
     {% endif %}
   </div>
 </div>

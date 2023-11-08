@@ -3,7 +3,7 @@ use axum::{body::StreamBody, extract::Path, response::IntoResponse, routing::get
 use include_dir::{include_dir, Dir};
 use tokio_util::io::ReaderStream;
 
-use crate::errors::HtmxError;
+use crate::{errors::HtmxError, AppState};
 
 static ASSETS: Dir<'_> = include_dir!("assets");
 
@@ -13,7 +13,7 @@ struct ErrorTemplate {
     message: String,
 }
 
-pub fn router() -> Router {
+pub fn router() -> Router<AppState> {
     return Router::new().route("/*path", get(serve_asset));
 }
 

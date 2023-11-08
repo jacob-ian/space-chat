@@ -1,21 +1,21 @@
-use std::time::Duration;
-
 use askama::Template;
 use axum::{
     extract::{
         ws::{Message, WebSocket},
-        WebSocketUpgrade,
+        State, WebSocketUpgrade,
     },
     response::IntoResponse,
     routing::get,
     Router,
 };
 use serde::{Deserialize, Serialize};
-use tokio::time::sleep;
 
-use crate::openai::{
-    chat_completion::{self, ChatCompletionArgs, ChatCompletionMessage},
-    OpenAIClient,
+use crate::{
+    openai::{
+        chat_completion::{self, ChatCompletionArgs, ChatCompletionMessage},
+        OpenAIClient,
+    },
+    AppState,
 };
 
 #[derive(Template)]
@@ -41,20 +41,20 @@ struct HtmxWSMessage {
     message: String,
 }
 
-pub fn router() -> Router {
+pub fn router() -> Router<AppState> {
     return Router::new().route("/", get(connect));
 }
 
-async fn connect(ws: WebSocketUpgrade) -> impl IntoResponse {
-    ws.on_upgrade(handle_socket)
+async fn connect(State(state): State<AppState>, ws: WebSocketUpgrade) -> impl IntoResponse {
+    ws.on_upgrade(|s| handle_socket(state, s))
 }
 
-async fn handle_socket(mut socket: WebSocket) {
+async fn handle_socket(state: AppState, mut socket: WebSocket) {
     if socket
         .send(Message::Text(
             ChatMessageTemplate {
                 is_bot: true,
-                message: "Welcome! This is a chat with a robot!".to_string(),
+                message: "What's on your mind?".to_string(),
             }
             .render()
             .unwrap(),
@@ -64,6 +64,11 @@ async fn handle_socket(mut socket: WebSocket) {
     {
         println!("Error happened");
     }
+
+    state.messages.lock().await.push(ChatCompletionMessage {
+        role: "assistant".to_string(),
+        content: "What's on your mind?".to_string(),
+    });
 
     while let Some(msg) = socket.recv().await {
         let msg = if let Ok(msg) = msg {
@@ -79,6 +84,11 @@ async fn handle_socket(mut socket: WebSocket) {
             println!("message error happened");
             return;
         };
+
+        state.messages.lock().await.push(ChatCompletionMessage {
+            role: "user".to_string(),
+            content: msg.message.clone(),
+        });
 
         if socket
             .send(Message::Text(
@@ -107,15 +117,21 @@ async fn handle_socket(mut socket: WebSocket) {
         let client = OpenAIClient::new(String::from(
             "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",
         ));
+
+        let mut messages = state.messages.lock().await.to_vec();
+        messages.reverse();
+        messages.push(ChatCompletionMessage {
+            role: "system".to_string(),
+            content: "You are a therapist that will try to get the user to open up about their situation. Ask them clarifying questions but don't suggest solutions unless asked. Use casual language like two friends talking and don't be verbose in your responses.".to_string(),
+        });
+        messages.reverse();
+
         let completion = match chat_completion::create(
             &client,
             ChatCompletionArgs {
+                messages,
                 response_format: None,
                 model: String::from("gpt-3.5-turbo"),
-                messages: vec![ChatCompletionMessage {
-                    role: String::from("system"),
-                    content: String::from("You are a psychoanalyst"),
-                }],
             },
         )
         .await
@@ -130,6 +146,12 @@ async fn handle_socket(mut socket: WebSocket) {
                 return;
             }
         };
+
+        state
+            .messages
+            .lock()
+            .await
+            .push(completion.choices[0].message.clone());
 
         if socket
             .send(Message::Text(RemoveThinkingTemplate {}.render().unwrap()))

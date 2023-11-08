@@ -1,4 +1,3 @@
-use axum::http::HeaderValue;
 use serde::{Deserialize, Serialize};
 use serde_json::{to_string, to_string_pretty};
 
@@ -17,7 +16,7 @@ pub struct ChatCompletionChoice {
     pub message: ChatCompletionMessage,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct ChatCompletionMessage {
     pub role: String,
     pub content: String,
