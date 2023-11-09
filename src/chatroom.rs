@@ -78,6 +78,8 @@ async fn handle_socket(state: AppState, mut socket: WebSocket) {
             return;
         };
 
+        println!("{:?}", msg);
+
         let msg = if let Ok(m) = serde_json::from_str::<HtmxWSMessage>(&msg.to_text().unwrap()) {
             m
         } else {
